@@ -1,0 +1,76 @@
+'use client'
+
+import { useState } from 'react'
+import React from 'react'
+import WorkspaceLayout from '@/components/layout/WorkspaceLayout'
+import WorkspaceHeader from '@/components/layout/WorkspaceHeader'
+import CodeEditor from './CodeEditor'
+import AnalysisPanel from './AnalysisPanel'
+import { analyseCode, detectLanguage } from '@/app/lib/analyseCode'
+import { useUser } from '@/utils/hooks/useUser'
+
+export default function CoProgrammerPage() {
+  const [code, setCode] = useState(`// Write or paste your code here...`)
+  const [detectedLang, setDetectedLang] = useState('typescript')
+  const [instruction, setInstruction] = useState('')
+  const [analysedCode, setAnalysedCode] = useState('')
+  const [analysis, setAnalysis] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { username, loading: userLoading } = useUser()
+
+  function handleCodeChange(newCode) {
+    setCode(newCode)
+    // Auto-detect language when code changes
+    const lang = detectLanguage(newCode)
+    setDetectedLang(lang)
+    setError('')
+  }
+
+  async function handleAnalyse() {
+    if (!code.trim()) return 
+    setLoading(true)
+    setError('')
+    setAnalysis('')
+    setAnalysedCode('')
+    try {
+      const result = await analyseCode(code, detectedLang, instruction)
+      setAnalysedCode(result.modifiedCode)
+      setAnalysis(result.explanation)
+    } catch (e) {
+      console.error('Analysis error:', e);
+      setError(`Analysis failed: ${e.message}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleCodeApply(newCode) {
+    setCode(newCode)
+  }
+
+  return (
+    <WorkspaceLayout activeItem="coprogrammer">
+      <WorkspaceHeader mode="Co-Programmer" sessionId="SES-0042" username={username} />
+      <div className="flex-1 flex overflow-hidden">
+        <CodeEditor
+          code={code}
+          instruction={instruction}
+          onCodeChange={handleCodeChange}
+          onInstructionChange={setInstruction}
+          onAnalyse={handleAnalyse}
+          isAnalyzing={loading}
+          detectedLanguage={detectedLang}
+        />
+        <AnalysisPanel
+          analysedCode={analysedCode}
+          analysis={analysis}
+          originalCode={code}
+          onCodeApply={handleCodeApply}
+          error={error}
+          loading={loading}
+        />
+      </div>
+    </WorkspaceLayout>
+  )
+}
