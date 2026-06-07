@@ -17,7 +17,7 @@ export async function middleware(request) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          // ✅ Fix: set on both request and response so cookies propagate correctly
+
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
@@ -38,13 +38,14 @@ export async function middleware(request) {
   try {
     const {
       data: { session },
-    } = await supabase.auth.getSession() // ✅ no network call, reads from cookie
+    } = await supabase.auth.getSession() 
 
     if (!session) {
       return NextResponse.redirect(new URL('/auth', request.url))
     }
   } catch (error) {
     console.error('Middleware auth error:', error?.message)
+    // Still redirect to auth on error - session check failed, user not authenticated
     return NextResponse.redirect(new URL('/auth', request.url))
   }
 

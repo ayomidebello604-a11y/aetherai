@@ -39,7 +39,14 @@ export default function CoProgrammerPage() {
       setAnalysis(result.explanation)
     } catch (e) {
       console.error('Analysis error:', e);
-      setError(`Analysis failed: ${e.message}`)
+      const errorMsg = e.message?.includes('JSON') 
+        ? 'The analysis service returned an unexpected response format. Please try a different code snippet.'
+        : e.message?.includes('timeout')
+        ? 'Analysis is taking too long. Try with simpler or shorter code.'
+        : e.message?.includes('empty')
+        ? 'Your code appears to be empty. Please paste some code to analyze.'
+        : 'Unable to analyze your code. Please try again.';
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }

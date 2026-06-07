@@ -48,7 +48,16 @@ export default function ResearcherPage() {
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+        const statusMessages = {
+          400: 'Your message format is incorrect. Please try again.',
+          401: 'Your session expired. Please refresh the page.',
+          403: 'You don\'t have permission to use this feature.',
+          404: 'The research service is currently unavailable.',
+          429: 'You\'re sending requests too quickly. Please slow down.',
+          500: 'The research service encountered an error. Please try again.',
+          503: 'The research service is temporarily down. Please try again later.',
+        };
+        throw new Error(statusMessages[response.status] || `Connection error: ${response.status}. Please try again.`);
       }
 
       const data = await response.json();
@@ -71,7 +80,7 @@ export default function ResearcherPage() {
         // Add error message
         const errorMessage = {
           id: Date.now() + 1,
-          text: data.error || 'Failed to get a response. Please try again.',
+          text: data.error || 'I wasn\'t able to find an answer to your question. Please try rewording it or ask something different.',
           sender: 'ai',
           isError: true,
         };
@@ -81,9 +90,18 @@ export default function ResearcherPage() {
     } catch (error) {
       console.error('Chat Error:', error);
       
+      let userFriendlyError = 'Something went wrong while processing your question. Please try again.';
+      if (error.message?.includes('Connection error')) {
+        userFriendlyError = 'I had trouble connecting to the research service. Please check your internet and try again.';
+      } else if (error.message?.includes('timeout') || error.message?.includes('took too long')) {
+        userFriendlyError = 'Your request took too long to process. Try asking a simpler or shorter question.';
+      } else if (error.message?.includes('format')) {
+        userFriendlyError = 'There was a problem with how I processed your message. Please try again.';
+      }
+      
       const errorMessage = {
         id: Date.now() + 1,
-        text: `Error: ${error.message}. Check console for details.`,
+        text: userFriendlyError,
         sender: 'ai',
         isError: true,
       };

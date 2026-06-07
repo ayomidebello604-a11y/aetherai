@@ -7,25 +7,44 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 export default function LoginForm({ onModeChange }) {
-    const [user,setUser] = useState({email: '',password:''})
+  const [user, setUser] = useState({ email: '', password: '' })
+  const [isPending,setIspending] = useState(false)
+  const [error, setError] = useState('')
     const router = useRouter()
     const supabase = createClient()
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    setError('')
+    setIspending(true)
     const { error } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: user.password,
     })
+    setIspending(false)
     if (!error) {
       router.push('/researcher')
     } else {
       console.error('Login failed:', error.message)
+      let userError = 'Login failed. Please try again.'
+      if (error.message?.includes('Invalid login credentials')) {
+        userError = 'Email or password is incorrect. Please try again.'
+      } else if (error.message?.includes('Email not confirmed')) {
+        userError = 'Please verify your email before logging in. Check your inbox for the verification link.'
+      } else if (error.message?.includes('over_request_rate_limit')) {
+        userError = 'Too many login attempts. Please wait a few moments and try again.'
+      }
+      setError(userError)
     }
   }
 
   return (
     <form onSubmit={handleLogin} className="flex flex-col gap-5">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-[12px]">
+          {error}
+        </div>
+      )}
       <Input 
         label="Email Address" 
         type="email" 
@@ -41,8 +60,8 @@ export default function LoginForm({ onModeChange }) {
         onChange={(e) => setUser({...user, password: e.target.value})}
       />
 
-      <Button type="submit" variant="primary" size="lg" className="w-full mt-2">
-        Authenticate →
+      <Button type="submit" variant="primary" disabled={isPending}  size="lg" className="w-full mt-2">
+       {isPending ? 'Authenticating....' : 'Authenticate →' } 
       </Button>
 
       <Divider label="or" className="my-6" />

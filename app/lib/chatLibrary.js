@@ -1,132 +1,123 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Next.js 13+ has built-in fetch — no polyfill needed
+// ============================================================
+// SYSTEM PROMPT — ChatGPT + Claude style, rich & structured
+// ============================================================
 
-/**
- * Cleans markdown and LaTeX symbols from plain text responses.
- * Preserves code blocks and inline code exactly as-is.
- * For math responses, keeps $ delimiters intact.
- * For everything else, strips ### headers, ** bold, $ signs, etc.
- */
-export function cleanResponse(text, queryType) {
-  if (!text) return text;
+const SYSTEM_PROMPT = `You are Aether AI, an advanced research, mathematics, and programming assistant. You are highly intelligent, precise, and educational.You are built by Bello Samad.
 
-  if (queryType === "math") {
-    return text
-      .replace(/^#{1,6}\s+/gm, "")
-      .replace(/\*\*(.*?)\*\*/g, "$1")
-      .replace(/\*(.*?)\*/g, "$1")
-      .trim();
-  }
+CORE BEHAVIOR:
+- Always use rich markdown formatting in your responses.
+- Use ## headings, ### subheadings, **bold**, *italic*, bullet lists, numbered lists, tables, and code blocks appropriately.
+- Never give flat, unformatted walls of text.
+- Be thorough but not verbose — every sentence should add value.
+- Speak in a professional, warm, and educational tone.
+-Speak ina friendly,local and harsh word depending on the request.
 
-  if (queryType === "code" || queryType === "debug") {
-    const parts = text.split(/(```[\s\S]*?```|`[^`]+`)/g);
-    return parts
-      .map((part, i) => (i % 2 === 1 ? part : stripMarkdown(part)))
-      .join("")
-      .trim();
-  }
+---
 
-  return stripMarkdown(text).trim();
-}
+MATHEMATICS:
+- Always solve step-by-step. Never skip a step.
+- Show the formula before substituting values.
+- Explain every transformation in plain English.
+- Use proper math symbols: ×, ÷, √, π, ∑, ∫, ≤, ≥, ≠, ², ³
+- Use LaTeX inside dollar signs for inline math: $E = mc^2$
+- Use double dollar signs for display math: $$\\int_0^\\infty e^{-x} dx = 1$$
+- Always present the final answer clearly at the end: **Answer: 42**
+- Verify the answer when possible.
 
-function stripMarkdown(text) {
-  return text
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-    .replace(/\*(.*?)\*/g, "$1")
-    .replace(/__(.*?)__/g, "$1")
-    .replace(/_(.*?)_/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$(.*?)\$/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/^[-*+]\s+/gm, "• ")
-    .replace(/^>\s+/gm, "")
-    .replace(/~~(.*?)~~/g, "$1")
-    .replace(/\n{3,}/g, "\n\n");
-}
+Math Response Format:
+## Problem
+[Restate the problem clearly]
 
-const SYSTEM_PROMPT = `You are an advanced, versatile AI assistant capable of handling ANY type of query with exceptional expertise and comprehensive detail. 
+## Given
+[List all known values]
 
-Your core capabilities:
-1. **Answer Questions**: Provide thorough, well-structured answers with context, examples, and relevant information
-2. **Solve Math Problems**: Show detailed step-by-step workings, explain formulas, provide reasoning, and verify answers
-3. **Write Code**: Provide clean, well-commented, production-ready code with comprehensive explanations
-4. **Debug Code**: Analyze code systematically, identify root causes, suggest fixes, explain why issues occur, and provide alternatives
-5. **Explain Concepts**: Break down complex topics into digestible parts with real-world examples and analogies
-6. **Data Analysis**: Analyze data sets, identify patterns, provide insights, and draw meaningful conclusions
-7. **Creative Writing**: Generate engaging, high-quality, contextually appropriate content
-8. **Technical Documentation**: Create clear, thorough technical documentation with examples
-9. **Problem Solving**: Approach problems systematically, provide multiple solutions when applicable, and justify recommendations
-10. **General Assistance**: Handle ANY request with professionalism, depth, and helpfulness`;
+## Formula
+[State the formula(s) used]
+
+## Solution
+[Step-by-step working]
+
+## Answer
+**[Final answer, clearly stated]**
+
+---
+
+CODING:
+- Always provide complete, working, production-ready code.
+- Wrap all code in fenced code blocks with the correct language tag.
+- Add brief but meaningful inline comments.
+- After the code, explain how it works in a short paragraph.
+- Mention time/space complexity when relevant.
+- Suggest improvements or edge cases to consider.
+
+---
+
+RESEARCH & GENERAL QUESTIONS:
+- Provide factual, well-structured answers.
+- Use headings and bullet points for clarity.
+- Distinguish facts from opinions.
+- If you are uncertain, say so explicitly.
+
+Research Response Format:
+## Summary
+[2-3 sentence executive summary]
+
+## Key Findings
+- Finding 1
+- Finding 2
+
+## Detailed Analysis
+[In-depth explanation]
+
+## Conclusion
+[Wrap up with actionable insight or takeaway]
+
+---
+
+EXPLANATIONS:
+- Break complex ideas into simple, digestible parts.
+- Use real-world analogies.
+- Provide examples wherever helpful.
+- Keep it educational and engaging.
+
+---
+
+ABSOLUTE RULES:
+- Never fabricate facts or sources.
+- Never give a one-liner for a complex question.
+- Always format your response — headings, bullets, code blocks, math notation.
+- If a question has multiple parts, address each part with its own heading.`;
+
+// ============================================================
+// SPECIALIZED PROMPTS
+// ============================================================
 
 const SPECIALIZED_PROMPTS = {
-  math: `${SYSTEM_PROMPT}
-
-INSTRUCTIONS FOR MATH PROBLEMS:
-- Show the solution steps concisely - NO lengthy write-ups
-- For simple problems: 2-3 lines maximum
-- Final answer on one line, clearly marked
-- NO headers, NO formatting, NO extended explanations
-- Just solve it directly and state the answer`,
-
-  code: `${SYSTEM_PROMPT}
-
-INSTRUCTIONS FOR CODE REQUESTS:
-- Provide complete, working code only
-- Add brief inline comments where necessary
-- Keep explanation minimal and focused
-- NO unnecessary sections or headers
-- One usage example if needed
-- Be direct and concise`,
-
-  debug: `${SYSTEM_PROMPT}
-
-INSTRUCTIONS FOR DEBUG REQUESTS:
-- Identify the problem briefly
-- Show the fix clearly
-- Explain in 1-2 sentences why it works
-- NO lengthy analysis or alternatives
-- Just fix it and explain quickly`,
-
-  explain: `${SYSTEM_PROMPT}
-
-INSTRUCTIONS FOR EXPLANATION REQUESTS:
-- Give a clear, concise explanation (2-3 paragraphs maximum)
-- Use one simple real-world example if helpful
-- NO long write-ups with multiple sections
-- Be direct and to the point
-- Focus on core concept only`,
-
-  question: `${SYSTEM_PROMPT}
-
-INSTRUCTIONS FOR GENERAL QUESTIONS:
-- Answer directly and concisely
-- 2-3 paragraphs maximum unless complex
-- NO lengthy sections or formatting
-- NO headers or special formatting
-- Be precise and avoid fluff`,
+  math: SYSTEM_PROMPT,
+  code: SYSTEM_PROMPT,
+  debug: SYSTEM_PROMPT,
+  explain: SYSTEM_PROMPT,
+  question: SYSTEM_PROMPT,
 };
+
+// ============================================================
+// MODEL FACTORY
+// ============================================================
 
 function createModel(systemPrompt) {
   console.log("\n========== GEMINI DEBUG ==========");
   console.log("API KEY EXISTS:", !!process.env.GEMINI_API_KEY);
 
-  if (process.env.GEMINI_API_KEY) {
-    console.log(
-      "API KEY PREFIX:",
-      process.env.GEMINI_API_KEY.slice(0, 10) + "..."
-    );
-  }
-
   if (!process.env.GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY is not set in environment variables.");
+    throw new Error("Research service configuration is missing. Please contact support.");
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
   return genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-3.5-flash",
     systemInstruction: systemPrompt,
     requestOptions: {
       timeout: 30000,
@@ -134,21 +125,22 @@ function createModel(systemPrompt) {
   });
 }
 
+// ============================================================
+// CORE CHAT FUNCTION
+// ============================================================
 
 export async function chat(userMessage, conversationHistory = [], queryType = null) {
   try {
     if (!userMessage || typeof userMessage !== "string") {
       return {
         success: false,
-        error: "Invalid message format",
+        error: "Your message format isn't valid. Please send plain text.",
         message: "Please provide a valid message.",
       };
     }
 
     const detectedType = queryType || detectQueryType(userMessage);
     const systemPrompt = SPECIALIZED_PROMPTS[detectedType] || SYSTEM_PROMPT;
-
-    // ✅ FIX 4: Use centralized model creator (also validates API key)
     const model = createModel(systemPrompt);
 
     const contents = [
@@ -162,94 +154,63 @@ export async function chat(userMessage, conversationHistory = [], queryType = nu
       },
     ];
 
-
-console.log("Calling Gemini API...");
-console.log("Detected query type:", detectedType);
-console.log("Conversation length:", conversationHistory.length);
-
+    console.log("Calling Gemini API...");
+    console.log("Detected query type:", detectedType);
+    console.log("Conversation length:", conversationHistory.length);
 
     const response = await model.generateContent({
       contents,
       generationConfig: {
-        temperature: 0.7,
+        temperature: detectedType === "math" ? 0.2 : 0.7,
         topP: 0.9,
         topK: 40,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 8192,
       },
     });
 
-    const rawReply = response.response.text();
-    const reply = cleanResponse(rawReply, detectedType);
+    // DO NOT strip markdown — let the frontend render it
+    const reply = response.response.text();
 
     return {
       success: true,
       reply,
       timestamp: new Date().toISOString(),
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       queryType: detectedType,
     };
   } catch (error) {
-  console.error("\n========== GEMINI ERROR ==========");
-  console.error("FULL ERROR:");
-  console.error(error);
+    console.error("\n========== GEMINI ERROR ==========");
+    console.error("MESSAGE:", error?.message);
+    console.error("STACK:", error?.stack);
+    console.error("CAUSE:", error?.cause);
 
-  console.error("\nMESSAGE:");
-  console.error(error?.message);
+    let userError = "I encountered an issue processing your question. Please try again.";
+    if (error?.message?.includes("timeout")) {
+      userError = "Your request took too long. Try asking a shorter or simpler question.";
+    } else if (error?.message?.includes("rate")) {
+      userError = "You're asking questions too quickly. Please wait a moment and try again.";
+    } else if (error?.message?.includes("Invalid")) {
+      userError = "Your question format wasn't recognized. Please try rewording it.";
+    } else if (error?.message?.includes("API")) {
+      userError = "We're experiencing service issues. Please try again shortly.";
+    }
 
-  console.error("\nSTACK:");
-  console.error(error?.stack);
-
-  console.error("\nCAUSE:");
-  console.error(error?.cause);
-
-  console.error("\nERROR KEYS:");
-  console.error(Object.keys(error || {}));
-
-  console.error("\nFULL ERROR JSON:");
-
-  try {
-    console.error(JSON.stringify(error, null, 2));
-  } catch {
-    console.error("Could not stringify error");
+    return {
+      success: false,
+      error: userError,
+      timestamp: new Date().toISOString(),
+    };
   }
-
-  let errorMessage =
-    error?.message ||
-    "An error occurred while processing your message";
-
-  return {
-    success: false,
-    error: errorMessage,
-    timestamp: new Date().toISOString(),
-  };
-}
 }
 
-/**
- * Process specialized queries with enhanced context
- */
-export async function processSpecializedQuery(queryType, message, conversationHistory = []) {
-  const specialPrompts = {
-    math: `Solve this math problem concisely. Show solution steps briefly, then state the final answer on one line. NO lengthy explanations, NO headers, NO special formatting.\n\nProblem: ${message}`,
-    code: `Provide complete working code. Keep comments brief. One usage example if needed. NO lengthy explanations or sections.\n\nRequest: ${message}`,
-    debug: `Identify the problem, show the fix, explain in 1-2 sentences why it works. NO lengthy analysis.\n\nIssue: ${message}`,
-    explain: `Explain this concisely in 2-3 paragraphs maximum. NO long sections or multiple parts. Be direct.\n\nConcept: ${message}`,
-    question: `Answer this concisely and directly. 2-3 paragraphs maximum unless complex. NO unnecessary sections.\n\nQuestion: ${message}`,
-  };
+// ============================================================
+// STREAMING CHAT
+// ============================================================
 
-  const enhancedMessage = specialPrompts[queryType] || specialPrompts.question;
-  return chat(enhancedMessage, conversationHistory, queryType);
-}
-
-/**
- * Stream a response for real-time feedback
- */
 export async function streamChat(message, onChunk) {
   try {
     const detectedType = detectQueryType(message);
     const systemPrompt = SPECIALIZED_PROMPTS[detectedType] || SYSTEM_PROMPT;
-
-    // ✅ FIX 6: Use centralized model creator here too
     const model = createModel(systemPrompt);
 
     const stream = await model.generateContentStream(message);
@@ -266,25 +227,39 @@ export async function streamChat(message, onChunk) {
     return { success: true, fullText };
   } catch (error) {
     console.error("Stream Error:", error.message);
-    if (error.cause) console.error("Stream root cause:", error.cause);
-    return { success: false, error: error.message };
+    let userError = "I couldn't process your streaming request. Please try again.";
+    if (error.message?.includes("timeout")) {
+      userError = "Your request took too long to stream. Try a shorter question.";
+    } else if (error.message?.includes("network")) {
+      userError = "Network connection issue. Check your internet and try again.";
+    }
+    return { success: false, error: userError };
   }
 }
 
-/**
- * Generate a summary of a conversation
- */
+// ============================================================
+// SPECIALIZED QUERY HANDLER
+// ============================================================
+
+export async function processSpecializedQuery(queryType, message, conversationHistory = []) {
+  return chat(message, conversationHistory, queryType);
+}
+
+// ============================================================
+// CONVERSATION SUMMARY
+// ============================================================
+
 export async function summarizeConversation(messages) {
   try {
     const conversationText = messages
       .map((msg) => `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`)
       .join("\n\n");
 
-    const summaryPrompt = `Please provide a comprehensive summary of this conversation, including:
+    const summaryPrompt = `Summarize this conversation. Include:
 1. Main topics discussed
-2. Key points and findings
-3. Any problems solved or questions answered
-4. Relevant context for future reference
+2. Key points and answers
+3. Problems solved
+4. Context for future reference
 
 Conversation:
 ${conversationText}`;
@@ -297,9 +272,10 @@ ${conversationText}`;
   }
 }
 
-/**
- * Get response metadata
- */
+// ============================================================
+// METADATA & QUALITY HELPERS
+// ============================================================
+
 export function getResponseMetadata(userMessage, aiResponse) {
   const queryType = detectQueryType(userMessage);
   return {
@@ -315,9 +291,6 @@ export function getResponseMetadata(userMessage, aiResponse) {
   };
 }
 
-/**
- * Validate response quality
- */
 export function validateResponseQuality(response, queryType) {
   const minLengthByType = { math: 200, code: 300, debug: 300, explain: 250, question: 200 };
   const minLength = minLengthByType[queryType] || 150;
@@ -341,28 +314,6 @@ export function validateResponseQuality(response, queryType) {
   };
 }
 
-/**
- * Create structured response
- */
-export async function createStructuredResponse(userMessage, aiResponse, conversationHistory = []) {
-  const queryType = detectQueryType(userMessage);
-  const metadata = getResponseMetadata(userMessage, aiResponse);
-  const quality = validateResponseQuality(aiResponse, queryType);
-
-  return {
-    success: true,
-    userMessage,
-    aiResponse,
-    metadata,
-    quality,
-    followUpSuggestions: generateFollowUpQuestions(aiResponse, queryType),
-    timestamp: new Date().toISOString(),
-  };
-}
-
-/**
- * Generate follow-up questions
- */
 export function generateFollowUpQuestions(response, queryType) {
   const followUps = {
     math: [
@@ -391,13 +342,13 @@ export function generateFollowUpQuestions(response, queryType) {
       "What should I do next?",
     ],
   };
-
   return followUps[queryType] || followUps.question;
 }
 
-/**
- * Detect query type from message content
- */
+// ============================================================
+// QUERY TYPE DETECTOR
+// ============================================================
+
 export function detectQueryType(message) {
   const lowerMessage = message.toLowerCase();
 
@@ -413,20 +364,10 @@ export function detectQueryType(message) {
 
   const codeKeywords = [
     "code", "function", "class", "method", "variable",
-    "debug", "error", "syntax", "logic", "algorithm",
-    "program", "script", "javascript", "python", "java",
-    "cpp", "c++", "html", "css", "react", "node",
-    "database", "api", "endpoint", "refactor", "optimize",
-    "implement", "create a", "write", "build", "how to",
-    "fix", "bug", "issue", "error", "traceback",
-    "stack trace", "exception",
-  ];
-
-  const explainKeywords = [
-    "explain", "what is", "how does", "how to", "why",
-    "understand", "concept", "describe", "tell me", "teach",
-    "learn", "difference between", "definition", "meaning",
-    "clarify", "elaborate",
+    "syntax", "algorithm", "program", "script",
+    "javascript", "python", "java", "cpp", "c++", "html",
+    "css", "react", "node", "database", "api", "endpoint",
+    "refactor", "optimize", "implement", "build",
   ];
 
   const debugKeywords = [
@@ -435,14 +376,18 @@ export function detectQueryType(message) {
     "fail", "doesn't work", "won't work", "can't", "trouble",
   ];
 
-  if (debugKeywords.some((kw) => lowerMessage.includes(kw))) {
-    if (
-      codeKeywords.some((kw) => lowerMessage.includes(kw)) ||
-      lowerMessage.includes("code") ||
-      lowerMessage.includes("error")
-    ) {
-      return "debug";
-    }
+  const explainKeywords = [
+    "explain", "what is", "how does", "why", "understand",
+    "concept", "describe", "tell me", "teach", "learn",
+    "difference between", "definition", "meaning", "clarify",
+  ];
+
+  if (
+    debugKeywords.some((kw) => lowerMessage.includes(kw)) &&
+    (codeKeywords.some((kw) => lowerMessage.includes(kw)) ||
+      lowerMessage.includes("error"))
+  ) {
+    return "debug";
   }
 
   if (mathKeywords.some((kw) => lowerMessage.includes(kw))) return "math";
@@ -458,5 +403,7 @@ export default {
   streamChat,
   summarizeConversation,
   detectQueryType,
-  cleanResponse,
+  getResponseMetadata,
+  validateResponseQuality,
+  generateFollowUpQuestions,
 };

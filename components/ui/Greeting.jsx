@@ -4,7 +4,7 @@ export default function Greeting() {
   let greetingText;
 
   switch (true) {
-    case hour >= 5 && hour < 12:
+    case hour >= 4 && hour < 12:
       greetingText = "Good morning";
       break;
     case hour >= 12 && hour < 17:

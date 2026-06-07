@@ -102,10 +102,6 @@ ${code}
 export async function analyseCode(code, language = '', instruction = '') {
   // Auto-detect language if not provided
   const detectedLang = language || detectLanguage(code);
-  
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
     const res = await fetch('/api/coprogrammer', {
@@ -113,7 +109,6 @@ export async function analyseCode(code, language = '', instruction = '') {
       headers: {
         'Content-Type': 'application/json',
       },
-      signal: controller.signal,
       body: JSON.stringify({
         // Your route.js reads body.message
         message: buildPrompt(code, detectedLang, instruction),
@@ -122,7 +117,9 @@ export async function analyseCode(code, language = '', instruction = '') {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || `API error: ${res.status}`);
+      const apiError = errorData.error;
+      // Return the API error as-is since it's already user-friendly
+      throw new Error(apiError || `Code analysis service error (${res.status}). Please try again.`);
     }
 
     const data = await res.json();
@@ -141,7 +138,7 @@ export async function analyseCode(code, language = '', instruction = '') {
     const jsonEnd = raw.lastIndexOf('}');
     
     if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
-      throw new Error('No valid JSON object found in response');
+      throw new Error('The analysis service returned an unexpected format. Please try with different code.');
     }
 
     const jsonStr = raw.substring(jsonStart, jsonEnd + 1);
@@ -151,17 +148,21 @@ export async function analyseCode(code, language = '', instruction = '') {
     try {
       parsed = JSON.parse(jsonStr);
     } catch (parseError) {
-      throw new Error(`Failed to parse JSON: ${parseError.message}\nReceived: ${jsonStr.substring(0, 200)}...`);
+      throw new Error(`The analysis service is having trouble processing your request. Please try with simpler code.`);
     }
 
     // Safety check — make sure we got an object with the right keys
     if (!parsed.modifiedCode || !parsed.explanation) {
-      throw new Error('Response missing modifiedCode or explanation');
+      throw new Error('The analysis service couldn\'t complete your request. Please try again with different code.');
     }
 
     return parsed;
-  } finally {
-    clearTimeout(timeoutId);
+  } catch (error) {
+    // Check if it's an AbortError from timeout
+    if (error.name === 'AbortError') {
+      throw new Error('Analysis request took too long. Try with simpler or shorter code.');
+    }
+    throw error;
   }
 }
 

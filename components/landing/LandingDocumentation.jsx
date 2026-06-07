@@ -6,7 +6,7 @@ PenLine, HelpCircle, ArrowRight,
 
 export default function LandingDocs() {
   return (
-    <section id="docs" className="border-t border-black">
+    <section id="documentation" className="border-t border-black">
       {/* ── Intro ─────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 border-b border-black">
         <div className="p-12 lg:p-16 border-r border-black">
@@ -16,11 +16,11 @@ export default function LandingDocs() {
           </div>
           <h2 className="font-black leading-[.95] tracking-tight mb-6"
               style={{ fontSize: 'clamp(36px, 4vw, 56px)' }}>
-            HOW IT<br/>WORKS.
+            START IN<br/>3 MINUTES.
           </h2>
           <p className="text-base leading-relaxed opacity-55 max-w-sm">
-            AETHER is a two-mode AI workspace. Pick a mode, type your input,
-            and get a structured, intelligent response — no setup, no noise.
+            AETHER has two simple tools. Pick what you need, type your question or paste code,
+            and get helpful answers — no complicated setup, just results.
           </p>
         </div>
 
@@ -68,20 +68,20 @@ export default function LandingDocs() {
           </div>
           <span className="bg-black text-white text-[9px] font-bold tracking-[.15em] uppercase px-2 py-1 inline-block mb-4">Mode 01</span>
           <h3 className="text-2xl font-black tracking-tight mb-3">Researcher</h3>
-          <p className="text-sm leading-relaxed opacity-60 mb-6 max-w-md">Ask any question — factual, conceptual, analytical. AETHER synthesises a clear, direct answer and points you to the sources it drew from. Built for depth, not surface-level replies.</p>
+          <p className="text-sm leading-relaxed opacity-60 mb-6 max-w-md">Ask any question and get a clear answer. AETHER shows you where it found the information so you know you can trust it. Perfect for learning about anything — science, history, tech, or just life questions.</p>
           <div className="h-px bg-black opacity-10 mb-5" />
           <ul className="divide-y divide-gray-100">
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
-              <span className="text-[13px] leading-relaxed opacity-65">Ask open-ended or highly specific research questions in plain language</span>
+              <span className="text-[13px] leading-relaxed opacity-65">Ask any question, specific or broad</span>
             </li>
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
-              <span className="text-[13px] leading-relaxed opacity-65">Get a synthesized answer with referenced sources listed below it</span>
+              <span className="text-[13px] leading-relaxed opacity-65">Get an answer backed by real sources</span>
             </li>
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
-              <span className="text-[13px] leading-relaxed opacity-65">Filter sources by type — Academic, News, or Documentation</span>
+              <span className="text-[13px] leading-relaxed opacity-65">Sort sources by category — News, Research, or Guides</span>
             </li>
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
@@ -101,24 +101,24 @@ export default function LandingDocs() {
           </div>
           <span className="bg-black text-white text-[9px] font-bold tracking-[.15em] uppercase px-2 py-1 inline-block mb-4">Mode 02</span>
           <h3 className="text-2xl font-black tracking-tight mb-3">Co-Programmer</h3>
-          <p className="text-sm leading-relaxed opacity-60 mb-6 max-w-md">Paste any block of code. AETHER analyses it and returns structured annotations — covering complexity, correctness, potential bugs, and concrete improvement suggestions.</p>
+          <p className="text-sm leading-relaxed opacity-60 mb-6 max-w-md">Paste your code and get useful feedback. AETHER spots problems, explains what your code does, and suggests how to make it better.</p>
           <div className="h-px bg-black opacity-10 mb-5" />
           <ul className="divide-y divide-gray-100">
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
-              <span className="text-[13px] leading-relaxed opacity-65">Supports TypeScript, Python, Go, and Rust out of the box</span>
+              <span className="text-[13px] leading-relaxed opacity-65">Works with popular languages like Python, JavaScript, Go, and Rust</span>
             </li>
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
-              <span className="text-[13px] leading-relaxed opacity-65">Switch languages with one click — editor resets to a matching starter template</span>
+              <span className="text-[13px] leading-relaxed opacity-65">Change languages instantly — editor gets a fresh template</span>
             </li>
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
-              <span className="text-[13px] leading-relaxed opacity-65">Hit Analyse to send your code to the AI and get labelled annotations</span>
+              <span className="text-[13px] leading-relaxed opacity-65">Click Analyse to check your code and get clear feedback</span>
             </li>
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
-              <span className="text-[13px] leading-relaxed opacity-65">Annotations cover: time complexity, correctness, edge cases, suggestions</span>
+              <span className="text-[13px] leading-relaxed opacity-65">Feedback covers: what the code does, how fast it is, potential issues, and ways to improve</span>
             </li>
             <li className="flex items-start gap-3 py-2.5">
               <span className="w-1 h-1 bg-black flex-shrink-0 mt-2" />
@@ -131,8 +131,8 @@ export default function LandingDocs() {
       {/* ── How It Works ───────────────────────── */}
       <div className="border-b border-black">
         <div className="flex items-center justify-between px-12 py-6 border-b border-black">
-          <span className="text-[11px] font-bold tracking-[.2em] uppercase">Under the Hood</span>
-          <span className="text-[12px] opacity-40">What happens between input and response</span>
+          <span className="text-[11px] font-bold tracking-[.2em] uppercase">How It Works</span>
+          <span className="text-[12px] opacity-40">From your question to your answer</span>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4">
           <div className="p-8 border-r border-black">
@@ -144,20 +144,20 @@ export default function LandingDocs() {
           <div className="p-8 border-r border-black">
             <div className="text-[32px] font-black opacity-[.07] leading-none mb-3">02</div>
             <Package size={20} className="opacity-60 mb-3" />
-            <div className="text-[14px] font-bold mb-2">Frontend calls the backend</div>
-            <div className="text-[13px] opacity-55 leading-relaxed">Your input is wrapped in a structured prompt and sent to the secure Next.js API route.</div>
+            <div className="text-[14px] font-bold mb-2">We get your message</div>
+            <div className="text-[13px] opacity-55 leading-relaxed">Your input is sent securely to our servers, ready for processing.</div>
           </div>
           <div className="p-8 border-r border-black">
             <div className="text-[32px] font-black opacity-[.07] leading-none mb-3">03</div>
             <Server size={20} className="opacity-60 mb-3" />
-            <div className="text-[14px] font-bold mb-2">AI processes the request</div>
-            <div className="text-[13px] opacity-55 leading-relaxed">Groq's Llama 3.3 70B model processes the prompt server-side. Your API key stays private.</div>
+            <div className="text-[14px] font-bold mb-2">AI processes it</div>
+            <div className="text-[13px] opacity-55 leading-relaxed">Our AI reads and understands your question or code, then generates a helpful response. Your privacy is protected.</div>
           </div>
           <div className="p-8">
             <div className="text-[32px] font-black opacity-[.07] leading-none mb-3">04</div>
             <CheckCircle2 size={20} className="opacity-60 mb-3" />
-            <div className="text-[14px] font-bold mb-2">Response is returned</div>
-            <div className="text-[13px] opacity-55 leading-relaxed">The AI's response is formatted and streamed back to your browser in real time.</div>
+            <div className="text-[14px] font-bold mb-2">You get your answer</div>
+            <div className="text-[13px] opacity-55 leading-relaxed">The response appears in your browser instantly. No waiting, no confusion.</div>
           </div>
         </div>
       </div>
@@ -165,8 +165,8 @@ export default function LandingDocs() {
       {/* ── CTA ────────────────────────────────── */}
       <div className="px-12 lg:px-16 py-16 flex items-center justify-between">
         <div>
-          <h3 className="text-2xl font-black tracking-tight mb-2">Ready to try AETHER?</h3>
-          <p className="text-sm opacity-55">No credit card required. Join hundreds discovering AI that actually thinks.</p>
+          <h3 className="text-2xl font-black tracking-tight mb-2">Give it a try</h3>
+          <p className="text-sm opacity-55">No payment needed. Start exploring — simple, fast, and actually helpful.</p>
         </div>
         <a href="/auth" className="bg-black text-white px-6 py-3 rounded text-sm font-bold hover:bg-gray-800 transition flex items-center gap-2">
           Get Started

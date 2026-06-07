@@ -101,6 +101,56 @@ const renderTextWithMath = (text) => {
   return parts.length === 0 ? [{ type: 'text', content: text }] : parts;
 };
 
+// Helper to render inline formatting (bold, italic, etc.) with math support
+const renderInlineMarkdown = (text) => {
+  const parts = [];
+  let lastIndex = 0;
+  
+  // Pattern for bold (**text**)
+  const boldRegex = /\*\*([^\*]+)\*\*/g;
+  let match;
+  
+  const textParts = [];
+  const boldMatches = [];
+  while ((match = boldRegex.exec(text)) !== null) {
+    boldMatches.push({ start: match.index, end: match.index + match[0].length, content: match[1] });
+  }
+  
+  lastIndex = 0;
+  boldMatches.forEach(bold => {
+    if (bold.start > lastIndex) {
+      textParts.push({ type: 'text', content: text.slice(lastIndex, bold.start) });
+    }
+    textParts.push({ type: 'bold', content: bold.content });
+    lastIndex = bold.end;
+  });
+  
+  if (lastIndex < text.length) {
+    textParts.push({ type: 'text', content: text.slice(lastIndex) });
+  }
+  
+  if (textParts.length === 0) {
+    textParts.push({ type: 'text', content: text });
+  }
+  
+  return textParts.map((p, i) => {
+    if (p.type === 'bold') {
+      return <strong key={i} className="font-semibold">{p.content}</strong>;
+    } else {
+      const mathParts = renderTextWithMath(p.content);
+      return (
+        <React.Fragment key={i}>
+          {mathParts.map((mp, j) => 
+            mp.type === 'math' ? 
+              <MathRenderer key={j} math={mp.content} /> : 
+              <span key={j}>{mp.content}</span>
+          )}
+        </React.Fragment>
+      );
+    }
+  });
+};
+
 // Helper component to render markdown-like content
 const MessageContent = ({ text, isError }) => {
   if (isError) {
@@ -111,17 +161,17 @@ const MessageContent = ({ text, isError }) => {
     )
   }
 
-  // Split content by code blocks
-  const parts = text.split(/(```[\s\S]*?```)/g)
+  // Split content by code blocks first
+  const parts = text.split(/(```[\s\S]*?```)/g);
 
   return (
     <div className="text-sm space-y-3">
       {parts.map((part, index) => {
+        // Handle code blocks
         if (part.startsWith('```')) {
-          // Code block - extract language
-          const codeMatch = part.match(/```(\w+)?\n?([\s\S]*?)\n?```/)
-          const language = codeMatch?.[1] || 'text'
-          const codeContent = codeMatch?.[2] || part.replace(/```\n?/g, '').trim()
+          const codeMatch = part.match(/```(\w+)?\n?([\s\S]*?)\n?```/);
+          const language = codeMatch?.[1] || 'text';
+          const codeContent = codeMatch?.[2] || part.replace(/```\n?/g, '').trim();
           return (
             <div key={index}>
               <p className="text-xs font-semibold text-gray-600 mb-2">{language}</p>
@@ -129,84 +179,167 @@ const MessageContent = ({ text, isError }) => {
                 <code>{codeContent}</code>
               </pre>
             </div>
-          )
-        } else if (part.includes('**')) {
-          // Bold text and enhanced formatting with math support
-          return (
-            <p key={index} className="leading-relaxed">
-              {part.split(/(\*\*[^*]+\*\*)/g).map((segment, i) => {
-                if (segment.startsWith('**')) {
-                  return <strong key={i} className="font-semibold">{segment.replace(/\*\*/g, '')}</strong>
-                }
-                // Check if segment contains math
-                const mathParts = renderTextWithMath(segment);
-                return (
-                  <React.Fragment key={i}>
-                    {mathParts.map((p, j) => 
-                      p.type === 'math' ? 
-                        <MathRenderer key={j} math={p.content} /> : 
-                        <span key={j}>{p.content}</span>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </p>
-          )
-        } else if (part.includes('- ') || part.includes('* ')) {
-          // Bullet points with math support
-          return (
-            <ul key={index} className="list-disc list-inside space-y-1 pl-2">
-              {part.split('\n').filter(line => line.trim()).map((line, i) => {
-                const cleanLine = line.replace(/^[\s\-\*]+/, '').trim();
-                const mathParts = renderTextWithMath(cleanLine);
-                return (
-                  <li key={i} className="text-sm">
-                    {mathParts.map((p, j) => 
-                      p.type === 'math' ? 
-                        <MathRenderer key={j} math={p.content} /> : 
-                        <span key={j}>{p.content}</span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )
-        } else if (part.match(/^\d+\./m)) {
-          // Numbered lists with math support
-          return (
-            <ol key={index} className="list-decimal list-inside space-y-1 pl-2">
-              {part.split('\n').filter(line => line.trim()).map((line, i) => {
-                const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
-                const mathParts = renderTextWithMath(cleanLine);
-                return (
-                  <li key={i} className="text-sm">
-                    {mathParts.map((p, j) => 
-                      p.type === 'math' ? 
-                        <MathRenderer key={j} math={p.content} /> : 
-                        <span key={j}>{p.content}</span>
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-          )
-        } else if (part.trim()) {
-          // Regular paragraph with math support
-          const mathParts = renderTextWithMath(part);
-          return (
-            <p key={index} className="leading-relaxed text-gray-700">
-              {mathParts.map((p, i) => 
-                p.type === 'math' ? 
-                  <MathRenderer key={i} math={p.content} /> : 
-                  <span key={i}>{p.content}</span>
-              )}
-            </p>
           );
         }
-        return null
+
+        // Split by lines to process headers, tables, lists, etc.
+        const lines = part.split('\n');
+        const elements = [];
+        let i = 0;
+
+        while (i < lines.length) {
+          const line = lines[i];
+          
+          // Skip empty lines
+          if (!line.trim()) {
+            i++;
+            continue;
+          }
+
+          // Headers
+          if (line.match(/^#{1,6}\s/)) {
+            const level = line.match(/^#+/)[0].length;
+            const headerContent = line.replace(/^#+\s/, '').trim();
+            const headingSizes = {
+              1: 'text-2xl font-bold',
+              2: 'text-xl font-bold',
+              3: 'text-lg font-bold',
+              4: 'text-base font-bold',
+              5: 'text-sm font-bold',
+              6: 'text-xs font-bold'
+            };
+            elements.push(
+              <h1 key={`${index}-${i}`} className={`${headingSizes[level]} mt-4 mb-2 text-gray-800`}>
+                {renderInlineMarkdown(headerContent)}
+              </h1>
+            );
+            i++;
+          }
+          // Tables
+          else if (line.includes('|')) {
+            const tableStart = i;
+            const tableLines = [];
+            while (i < lines.length && lines[i].includes('|')) {
+              tableLines.push(lines[i]);
+              i++;
+            }
+            
+            // Check if it's a valid table (has header separator)
+            const hasSeparator = tableLines.some(l => l.includes('---'));
+            if (tableLines.length >= 2 && hasSeparator) {
+              const headers = tableLines[0]
+                .split('|')
+                .map(h => h.trim())
+                .filter(h => h);
+              
+              const rows = [];
+              let inBody = false;
+              for (const tline of tableLines) {
+                if (tline.includes('---')) {
+                  inBody = true;
+                  continue;
+                }
+                if (inBody) {
+                  const cells = tline
+                    .split('|')
+                    .map(c => c.trim())
+                    .filter(c => c);
+                  rows.push(cells);
+                }
+              }
+
+              elements.push(
+                <div key={`${index}-${tableStart}`} className="overflow-x-auto my-3">
+                  <table className="w-full border-collapse border border-gray-300 text-xs">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        {headers.map((h, hi) => (
+                          <th key={hi} className="border border-gray-300 px-3 py-2 font-semibold text-left">
+                            {renderInlineMarkdown(h)}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row, ri) => (
+                        <tr key={ri} className="hover:bg-gray-50">
+                          {row.map((cell, ci) => (
+                            <td key={ci} className="border border-gray-300 px-3 py-2">
+                              {renderInlineMarkdown(cell)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            } else {
+              elements.push(
+                <p key={`${index}-${tableStart}`} className="leading-relaxed text-gray-700">
+                  {renderInlineMarkdown(line)}
+                </p>
+              );
+            }
+          }
+          // Horizontal rules
+          else if (line.match(/^-{3,}$/)) {
+            elements.push(<hr key={`${index}-${i}`} className="my-4 border-gray-300" />);
+            i++;
+          }
+          // Bullet lists
+          else if (line.match(/^[\*\-]\s/)) {
+            const listStart = i;
+            const listItems = [];
+            while (i < lines.length && lines[i].match(/^[\*\-]\s/)) {
+              const item = lines[i].replace(/^[\*\-]\s/, '').trim();
+              listItems.push(item);
+              i++;
+            }
+            elements.push(
+              <ul key={`${index}-${listStart}`} className="list-disc list-inside space-y-1 pl-2">
+                {listItems.map((item, li) => (
+                  <li key={li} className="text-sm">
+                    {renderInlineMarkdown(item)}
+                  </li>
+                ))}
+              </ul>
+            );
+          }
+          // Numbered lists
+          else if (line.match(/^\d+\.\s/)) {
+            const listStart = i;
+            const listItems = [];
+            while (i < lines.length && lines[i].match(/^\d+\.\s/)) {
+              const item = lines[i].replace(/^\d+\.\s/, '').trim();
+              listItems.push(item);
+              i++;
+            }
+            elements.push(
+              <ol key={`${index}-${listStart}`} className="list-decimal list-inside space-y-1 pl-2">
+                {listItems.map((item, li) => (
+                  <li key={li} className="text-sm">
+                    {renderInlineMarkdown(item)}
+                  </li>
+                ))}
+              </ol>
+            );
+          }
+          // Regular paragraphs
+          else {
+            elements.push(
+              <p key={`${index}-${i}`} className="leading-relaxed text-gray-700">
+                {renderInlineMarkdown(line)}
+              </p>
+            );
+            i++;
+          }
+        }
+
+        return <React.Fragment key={index}>{elements}</React.Fragment>;
       })}
     </div>
-  )
+  );
 }
 
 // Component to display follow-up question suggestions
