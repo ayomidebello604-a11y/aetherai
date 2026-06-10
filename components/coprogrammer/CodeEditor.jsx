@@ -1,8 +1,6 @@
-'use client'
-
 import { useRef } from 'react';
-import React from 'react';
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react';
+
 
 export default function CodeEditor({
   code, onCodeChange, onAnalyse, isAnalyzing, instruction, onInstructionChange, detectedLanguage
@@ -18,30 +16,30 @@ export default function CodeEditor({
   }
 
   return (
-    <div className="w-1/2 flex flex-col border-r border-black min-w-0 h-full">
+    <div className="w-full lg:w-1/2 flex flex-col border-r border-black min-w-0 h-full">
 
       {/* Header */}
-      <div className="px-5 py-3 border-b border-black flex-shrink-0">
-        <span className="text-[10px] font-bold tracking-widest uppercase opacity-50">
+      <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-black flex-shrink-0">
+        <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase opacity-50">
           Code Editor
         </span>
       </div>
 
       {/* Detected Language Indicator */}
-      <div className="px-5 py-2 border-b border-black bg-[#f0f0f0] flex-shrink-0">
-        <span className="text-[9px] font-bold tracking-widest uppercase opacity-60">
-          Detected Language: <span className="font-mono text-[10px] text-black">{detectedLanguage}</span>
+      <div className="px-4 sm:px-5 py-2 border-b border-black bg-[#f0f0f0] flex-shrink-0">
+        <span className="text-[8px] sm:text-[9px] font-bold tracking-widest uppercase opacity-60">
+          Detected Language: <span className="font-mono text-[9px] sm:text-[10px] text-black\">{detectedLanguage}</span>
         </span>
       </div>
 
       {/* Instruction Input */}
-      <div className="px-5 py-3 border-b border-black bg-[#f5f5f5] flex-shrink-0">
+      <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-black bg-[#f5f5f5] flex-shrink-0">
         <input
           type="text"
-          placeholder="Enter instruction (e.g., 'fix bugs', 'optimize performance')..."
+          placeholder="Enter instruction..."
           value={instruction}
           onChange={e => onInstructionChange(e.target.value)}
-          className="w-full text-[11px] px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+          className="w-full text-[10px] sm:text-[11px] px-2 sm:px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
         />
       </div>
     
@@ -77,7 +75,7 @@ export default function CodeEditor({
           onClick={onAnalyse}
           disabled={!code.trim() || isAnalyzing}
           className="bg-white text-black px-4 py-1.5 text-[9px] font-bold tracking-widest uppercase hover:bg-black hover:text-white transition-all border border-white disabled:opacity-50 disabled:cursor-not-allowed">
-          {isAnalyzing ? (<Loader className="animate-spin" />) : '▶ Analyse'}
+          {isAnalyzing ? (<Loader2 className="animate-spin" />) : '▶ Analyse'}
         </button>
       </div>
 

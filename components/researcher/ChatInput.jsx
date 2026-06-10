@@ -5,7 +5,7 @@ export default function ChatInput({
   query, onQueryChange, onSendMessage, isLoading
 }) {
   return (
-    <div className="border-t border-gray-200 bg-white px-4 py-4">
+    <div className="border-t border-gray-200 bg-white px-4 sm:px-6 py-3 sm:py-4">
       <div className="max-w-4xl mx-auto">
         <div className="relative bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition-shadow focus-within:shadow-lg focus-within:border-black">
           <textarea
@@ -18,7 +18,7 @@ export default function ChatInput({
             }}
             disabled={isLoading}
             placeholder="Ask me anything... (math, code, explanations, questions)"
-            className="w-full px-4 py-3 text-sm font-normal bg-transparent placeholder:text-gray-400 focus:outline-none resize-none max-h-32 disabled:opacity-50"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-normal bg-transparent placeholder:text-gray-400 focus:outline-none resize-none max-h-32 disabled:opacity-50"
             rows="2"
           />
          
@@ -26,7 +26,7 @@ export default function ChatInput({
           <button
             onClick={onSendMessage}
             disabled={isLoading || !query.trim()}
-            className="absolute cursor-pointer bottom-3 right-3 bg-black text-white p-2 rounded-full hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute cursor-pointer bottom-2 sm:bottom-3 right-2 sm:right-3 bg-black text-white p-1.5 sm:p-2 rounded-full hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             title="Send (Ctrl+Enter)"
           >
             <ArrowUp size={18} />

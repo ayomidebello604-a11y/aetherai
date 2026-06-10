@@ -23,11 +23,17 @@ export async function middleware(request) {
           )
           response = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) => {
-            // Ensure cookies work across networks by setting SameSite=None
+            // Determine if connection is secure (HTTPS) or not
+            const isSecure = request.headers.get('x-forwarded-proto') === 'https' || 
+                            request.nextUrl.protocol === 'https:'
+            
+            // Set appropriate cookie options based on connection type
             response.cookies.set(name, value, {
               ...options,
-              sameSite: 'none',
-              secure: true,
+              ...(isSecure 
+                ? { sameSite: 'none', secure: true }  // HTTPS: strict cross-site cookies
+                : { sameSite: 'lax' }                   // HTTP (dev): basic protection
+              ),
             })
           })
         },

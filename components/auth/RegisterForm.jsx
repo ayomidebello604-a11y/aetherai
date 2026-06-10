@@ -66,7 +66,15 @@ export default function RegisterForm({ onModeChange }) {
     })
     setLoading(false)
     
-    // Check if registration was successful
+    // Check if registration succeeded (Supabase returns data object even if email confirmation pending)
+    if (data && !error) {
+      // Success: user was created (even if email confirmation is required)
+      console.log('Registration successful, verification email sent')
+      setVerificationSent(true)
+      return
+    }
+    
+    // Check for specific errors
     if (error) {
       console.error('Registration failed:', error.message)
       let userError = 'Registration failed. Please try again.'
@@ -84,12 +92,9 @@ export default function RegisterForm({ onModeChange }) {
       }
       
       setError(userError)
-    } else if (data?.user) {
-      // User was created successfully, show verification message
-      setVerificationSent(true)
     } else {
-      // No error but no user returned - likely email already exists
-      setError('This email is already registered. Try logging in or use a different email.')
+      // Fallback - shouldn't reach here
+      setError('Registration failed. Please try again.')
     }
   }
  

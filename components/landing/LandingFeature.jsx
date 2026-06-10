@@ -34,13 +34,13 @@ export default function LandingFeature() {
              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-black">
       {FEATURES.map((f, i) => (
         <div key={f.num}
-             className="p-8 border-r border-black last:border-r-0">
-          <div className="text-[10px] font-bold tracking-widest uppercase opacity-30 mb-4">
+             className="p-6 sm:p-8 border-b sm:border-b-0 sm:border-r border-black last:border-r-0">
+          <div className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase opacity-30 mb-4">
             {f.num} — {f.mode}
           </div>
           <div className="mb-4 opacity-60">{f.icon}</div>
           <h3 className="text-sm font-bold tracking-tight mb-3">{f.title}</h3>
-          <p className="text-[13px] leading-relaxed opacity-55">{f.body}</p>
+          <p className="text-[12px] sm:text-[13px] leading-relaxed opacity-55">{f.body}</p>
         </div>
       ))}
     </section>

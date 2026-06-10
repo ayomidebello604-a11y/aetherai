@@ -6,7 +6,7 @@ dns.setDefaultResultOrder("ipv4first");
 
 const nextConfig = {
   reactCompiler: true,
-  allowedDevOrigins: ['172.20.10.2'],
+  allowedDevOrigins: ['10.210.3.229', '172.20.10.2'],
   serverExternalPackages: ["@google/generative-ai", "groq-sdk"],
   experimental: {
     esmExternals: true,
@@ -15,6 +15,15 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Forwarded-Host, Accept-Language, Content-Language, Content-Type, Authorization' },
+        ],
+      },
+      {
+        source: '/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Access-Control-Allow-Origin', value: '*' },

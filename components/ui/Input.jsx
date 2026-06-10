@@ -9,7 +9,7 @@ export default function Input({ label, error, icon, className, id, ...props }) {
     <div className="flex flex-col gap-1.5 w-full">
       {label && (
         <label htmlFor={inputId}
-          className="text-[11px] font-bold tracking-widest uppercase text-black">
+          className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-black">
           {label}
         </label>
       )}
@@ -22,8 +22,8 @@ export default function Input({ label, error, icon, className, id, ...props }) {
         <input
           id={inputId}
           className={clsx(
-            'w-full bg-white text-black font-sans text-sm',
-            'border border-black px-4 py-3',
+            'w-full bg-white text-black font-sans text-sm sm:text-base',
+            'border border-black px-3 sm:px-4 py-2 sm:py-3',
             'placeholder:text-black placeholder:opacity-40',
             'focus:outline-none focus:border-2',
             'transition-all duration-100',
@@ -35,7 +35,7 @@ export default function Input({ label, error, icon, className, id, ...props }) {
         />
       </div>
       {error && (
-        <span className="text-[11px] font-semibold text-red-600 tracking-wide">
+        <span className="text-[10px] sm:text-[11px] font-semibold text-red-600 tracking-wide">
           {error}
         </span>
       )}

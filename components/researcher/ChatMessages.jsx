@@ -396,7 +396,7 @@ export default function ChatMessages({ messages, isLoading, onFollowUpClick }) {
                 className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`px-4 py-3 rounded-lg max-w-2xl ${
+                  className={`px-4 py-3 rounded-lg w-fit max-w-[85%] sm:max-w-2xl break-words overflow-wrap-anywhere ${
                     msg.sender === 'user'
                       ? 'bg-zinc-100 ml-auto rounded-[40px] text-black  '
                       : msg.isError

@@ -1,0 +1,2 @@
+<!-- Favicon is served via favicon.svg and configured in app/layout.js -->
+<!-- Modern browsers prefer SVG, fallback to ICO for older browsers -->

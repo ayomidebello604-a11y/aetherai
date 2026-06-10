@@ -41,7 +41,7 @@ export default function LoginForm({ onModeChange }) {
   return (
     <form onSubmit={handleLogin} className="flex flex-col gap-5">
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-[12px]">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-[11px] sm:text-[12px]">
           {error}
         </div>
       )}
@@ -70,7 +70,7 @@ export default function LoginForm({ onModeChange }) {
         Continue with Google
       </Button>
 
-      <p className="text-center text-sm mt-4">
+      <p className="text-center text-xs sm:text-sm mt-4">
         Don't have an account?{' '}
         <button
           onClick={() => onModeChange('register')}

@@ -15,22 +15,53 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --black: #000000;
-  --white: #ffffff;
-  --gray-50:  #f9f9f9;
-  --gray-100: #f3f3f3;
-  --gray-200: #e2e2e2;
-  --gray-400: #c6c6c6;
-  --gray-500: #848484;
-  --gray-900: #1b1b1b;
+    --white: #ffffff;
+    --gray-50:  #f9f9f9;
+    --gray-100: #f3f3f3;
+    --gray-200: #e2e2e2;
+    --gray-400: #c6c6c6;
+    --gray-500: #848484;
+    --gray-900: #1b1b1b;
   }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 body {
   background: #ffffff;
   color: #000000;
   font-family: 'Hanken Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-pre, code { font-family: 'JetBrains Mono', monospace !important; }
+
+pre, code {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* Responsive Image Handling */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure proper touch targets on mobile */
+@media (max-width: 640px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
 
 @layer utilities {
   .label-caps {
@@ -39,16 +70,39 @@ pre, code { font-family: 'JetBrains Mono', monospace !important; }
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
+
+  @media (max-width: 640px) {
+    .label-caps {
+      font-size: 10px;
+    }
+  }
+
   .btn-primary {
     @apply bg-black text-white border border-black px-6 py-3
            text-[11px] font-bold tracking-widest uppercase
            hover:bg-white hover:text-black transition-all duration-150;
   }
+
+  @media (max-width: 640px) {
+    .btn-primary {
+      @apply px-4 py-2.5 text-[10px];
+    }
+  }
+
   .btn-secondary {
     @apply bg-white text-black border border-black px-6 py-3
            text-[11px] font-bold tracking-widest uppercase
            hover:bg-black hover:text-white transition-all duration-150;
   }
-  .sharp-border { border: 1px solid #000; }
+
+  @media (max-width: 640px) {
+    .btn-secondary {
+      @apply px-4 py-2.5 text-[10px];
+    }
+  }
+
+  .sharp-border {
+    border: 1px solid #000;
+  }
 }
 
