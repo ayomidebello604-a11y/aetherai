@@ -5,7 +5,7 @@ function detectLanguage(code) {
   const trimmed = code.trim();
   
   // C/C++ patterns (check early - very specific)
-  if (/(#include|void|int main|printf|std::cout|using namespace|std::vector|template <)\b/.test(trimmed)) {
+  if (/(#include|void|int main|this>>|printf|std::cout|using namespace|Serial.print|std::vector|template <)\b/.test(trimmed)) {
     return 'cpp';
   }
   
@@ -45,7 +45,7 @@ function detectLanguage(code) {
   }
   
   // Python patterns (check AFTER JavaScript to avoid matching 'import')
-  if (/(^|\n)\s*(def |from |if __name__|except:|async def)\b/m.test(trimmed) || /:\s*$|:\s*#/m.test(trimmed)) {
+  if (/(^|\n)\s*(def |from |if __name__|except:|async def|print|input)\b/m.test(trimmed) || /:\s*$|:\s*#/m.test(trimmed)) {
     return 'python';
   }
   

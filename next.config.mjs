@@ -6,7 +6,7 @@ dns.setDefaultResultOrder("ipv4first");
 
 const nextConfig = {
   reactCompiler: true,
-  allowedDevOrigins: ['10.210.3.229', '172.20.10.2'],
+  allowedDevOrigins: ['172.20.10.2'],
   serverExternalPackages: ["@google/generative-ai", "groq-sdk"],
   experimental: {
     esmExternals: true,
