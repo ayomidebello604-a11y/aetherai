@@ -22,7 +22,7 @@ export default function Input({ label, error, icon, className, id, ...props }) {
         <input
           id={inputId}
           className={clsx(
-            'w-full bg-white text-black font-sans text-sm sm:text-base',
+            'w-full bg-white text-black font-sans text-sm sm:text-[16px',
             'border border-black px-3 sm:px-4 py-2 sm:py-3',
             'placeholder:text-black placeholder:opacity-40',
             'focus:outline-none focus:border-2',

@@ -35,7 +35,7 @@ function detectLanguage(code) {
   }
   
   // TypeScript patterns (check before JavaScript since it's more specific)
-  if (/\b(interface |type |enum |namespace |: [A-Z]\w+\s*[,\)=;])\b/.test(trimmed) || /:\s*(string|number|boolean|any|unknown|never|void|Array|Promise)\b/.test(trimmed)) {
+  if (/\b(interface |type |enum |namespace |: [A-Z]\w+\s*[,\)=;])\b/.test(trimmed) || /:\s*(string|number|boolean|any|unknown|never|Array|Promise)\b/.test(trimmed)) {
     return 'typescript';
   }
   

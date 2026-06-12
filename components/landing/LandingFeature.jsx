@@ -1,4 +1,6 @@
+'use client'
 import React from 'react'
+import { motion } from 'framer-motion'
 import { Search, Code2, Layout, Shield } from 'lucide-react'
 
 const FEATURES = [
@@ -30,8 +32,12 @@ const FEATURES = [
 
 export default function LandingFeature() {
   return (
-    <section id="features"
-             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-black">
+    <motion.section id="features"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, amount: 0.3 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-black">
       {FEATURES.map((f, i) => (
         <div key={f.num}
              className="p-6 sm:p-8 border-b sm:border-b-0 sm:border-r border-black last:border-r-0">
@@ -43,6 +49,6 @@ export default function LandingFeature() {
           <p className="text-[12px] sm:text-[13px] leading-relaxed opacity-55">{f.body}</p>
         </div>
       ))}
-    </section>
+    </motion.section>
   )
 }

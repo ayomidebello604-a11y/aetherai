@@ -39,7 +39,7 @@ export default function CodeEditor({
           placeholder="Enter instruction..."
           value={instruction}
           onChange={e => onInstructionChange(e.target.value)}
-          className="w-full text-[10px] sm:text-[11px] px-2 sm:px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+          className="w-full text-[16px] sm:text-[16px] px-2 sm:px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
         />
       </div>
     

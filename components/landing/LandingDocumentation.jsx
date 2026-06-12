@@ -1,4 +1,6 @@
+'use client'
 import React from 'react'
+import { motion } from 'framer-motion'
 import {
 Search, Code2, Package, Server, CheckCircle2,
 PenLine, HelpCircle, ArrowRight,
@@ -6,14 +8,21 @@ PenLine, HelpCircle, ArrowRight,
 
 export default function LandingDocs() {
   return (
-    <section id="documentation" className="border-t border-black">
+    <section 
+    id="documentation" className="border-t border-black">
       {/* ── Intro ─────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 border-b border-black">
-        <div className="p-6 sm:p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-black">
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: false, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="p-6 sm:p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-black">
           <div className="flex items-center gap-3 mb-6 sm:mb-8">
             <span className="w-2 h-2 bg-black inline-block" />
             <span className="text-[9px] sm:text-[10px] font-bold tracking-[.2em] uppercase">Documentation</span>
           </div>
+         
           <h2 className="font-black leading-[.95] tracking-tight mb-4 sm:mb-6"
               style={{ fontSize: 'clamp(28px, 5vw, 56px)' }}>
             START IN<br/>3 MINUTES.
@@ -22,7 +31,7 @@ export default function LandingDocs() {
             AETHER has two simple tools. Pick what you need, type your question or paste code,
             and get helpful answers — no complicated setup, just results.
           </p>
-        </div>
+        </motion.div>
 
         {/* Quick Steps */}
         <div className="p-6 sm:p-10 lg:p-16 flex items-center">

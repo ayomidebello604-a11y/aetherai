@@ -2,21 +2,21 @@
   "name": "adverseai",
   "version": "0.1.0",
   "private": true,
-  "type":"module",
-    "scripts": {
+  "type": "module",
+  "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start",
     "start:network": "next start -H 0.0.0.0 -p 3000",
     "network": "npm run build && npm run start:network",
     "lint": "eslint"
-  }
-,
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.40.0",
     "katex": "^0.17.0",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",

@@ -40,7 +40,7 @@ export default function LandingHeader() {
       {/* Mobile Actions */}
       <div className="md:hidden flex items-center gap-3">
         <a href="/auth"
-           className="inline-flex items-center px-3 py-2 bg-black text-white text-[10px] font-bold tracking-widest uppercase border border-black hover:bg-white hover:text-black transition-all duration-150 whitespace-nowrap">
+           className="inline-flex items-center px-2 py-2 bg-black text-white text-[10px] font-bold tracking-widest uppercase border border-black hover:bg-white hover:text-black transition-all duration-150 whitespace-nowrap">
           Login
         </a>
         <button

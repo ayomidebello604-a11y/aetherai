@@ -1,7 +1,9 @@
+'use client'
 import React from 'react'
 import { ArrowRight } from 'lucide-react'
 import AIFigure from '@/components/ui/AIFigure'
 import Tag from '@/components/ui/Tag'
+import { motion } from 'framer-motion'
 
 const STATS = [
   { value: '99.9%', label: 'Uptime SLA' },
@@ -15,8 +17,14 @@ export default function LandingHero() {
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 border-b border-black">
 
-        {/* ── Left: copy ── */}
-        <div className="flex flex-col justify-between p-5 sm:p-8 lg:p-16 border-b lg:border-b-0 lg:border-r border-black">
+        
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: false,amount: 0.3 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+
+          className="flex flex-col justify-between p-5 sm:p-8 lg:p-16 border-b lg:border-b-0 lg:border-r border-black">
           <div>
             {/* System badge */}
             <div className="flex items-center gap-3 mb-12">
@@ -45,16 +53,13 @@ export default function LandingHero() {
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
               <a href="/auth"
-                 className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-black text-white
-                            text-[10px] sm:text-[11px] font-bold tracking-widest uppercase border border-black
-                            hover:bg-white hover:text-black transition-all group whitespace-nowrap">
+                className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-black text-white text-[10px] sm:text-[11px] font-bold tracking-widest uppercase border border-b hover:bg-white hover:text-black transition-all group whitespace-nowrap">
                 Enter System
                 <ArrowRight size={14}
                   className="group-hover:translate-x-1 transition-transform"/>
               </a>
               <a href="#features"
-                 className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase opacity-40
-                            hover:opacity-100 transition-opacity">
+                 className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase opacity-40 hover:opacity-100 transition-opacity">
                 View Features →
               </a>
             </div>
@@ -76,7 +81,7 @@ export default function LandingHero() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Right: AI Figure ── */}
         <div className="relative flex items-center justify-center bg-gray-50 p-5 sm:p-8 lg:p-12 overflow-hidden">
