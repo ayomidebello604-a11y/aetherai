@@ -12,12 +12,12 @@ export default function LandingDocs() {
     id="documentation" className="border-t border-black">
       {/* ── Intro ─────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 border-b border-black">
-        <motion.div
+        <motion.div 
+          className="p-6 sm:p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-black"
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: false, amount: 0.3 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="p-6 sm:p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-black">
+          transition={{ duration: 0.8, ease: 'easeOut' }} >
           <div className="flex items-center gap-3 mb-6 sm:mb-8">
             <span className="w-2 h-2 bg-black inline-block" />
             <span className="text-[9px] sm:text-[10px] font-bold tracking-[.2em] uppercase">Documentation</span>
@@ -35,7 +35,12 @@ export default function LandingDocs() {
 
         {/* Quick Steps */}
         <div className="p-6 sm:p-10 lg:p-16 flex items-center">
-          <div className="w-full border border-black divide-y divide-black">
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="w-full border border-black divide-y divide-black">
             <div className="flex items-start gap-4 p-4 sm:p-5">
               <span className="bg-black text-white text-[9px] sm:text-[10px] font-bold tracking-widest uppercase px-2 py-1 flex-shrink-0 mt-0.5">01</span>
               <div>
@@ -64,7 +69,7 @@ export default function LandingDocs() {
                 <div className="text-[11px] sm:text-[12px] opacity-55 leading-relaxed">Save answers and annotated code directly to your session for reference later.</div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
