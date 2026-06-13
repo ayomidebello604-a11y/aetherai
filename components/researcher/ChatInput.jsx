@@ -18,7 +18,7 @@ export default function ChatInput({
             }}
             disabled={isLoading}
             placeholder="Ask me anything... (math, code, explanations)"
-            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-[16px] font-normal bg-transparent placeholder:text-gray-400 focus:outline-none resize-none max-h-32 disabled:opacity-50"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 pr-12 sm:pr-14 text-sm sm:text-[16px] font-normal bg-transparent placeholder:text-gray-400 focus:outline-none resize-none max-h-32 disabled:opacity-50"
             rows="2"
           />
          

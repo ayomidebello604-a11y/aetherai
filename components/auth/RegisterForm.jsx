@@ -61,7 +61,8 @@ export default function RegisterForm({ onModeChange }) {
       options: {
         data: {
           full_name: user.name,
-        }
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`, // Redirect after email verification
       }
     })
     setLoading(false)

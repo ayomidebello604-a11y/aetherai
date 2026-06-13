@@ -6,7 +6,7 @@ import WorkspaceLayout from '@/components/layout/WorkspaceLayout'
 import WorkspaceHeader from '@/components/layout/WorkspaceHeader'
 import CodeEditor from './CodeEditor'
 import AnalysisPanel from './AnalysisPanel'
-import { analyseCode, detectLanguage } from '@/app/lib/analyseCode'
+import { analyseCode, detectLanguageWithAI } from '@/app/lib/analyseCode'
 import { useUser } from '@/utils/hooks/useUser'
 
 export default function CoProgrammerPage() {
@@ -19,12 +19,14 @@ export default function CoProgrammerPage() {
   const [error, setError] = useState('')
   const { username, loading: userLoading } = useUser()
 
-  function handleCodeChange(newCode) {
+  async function handleCodeChange(newCode) {
     setCode(newCode)
-    // Auto-detect language when code changes
-    const lang = detectLanguage(newCode)
-    setDetectedLang(lang)
     setError('')
+    // Auto-detect language using AI when code changes
+    if (newCode.trim().length > 0) {
+      const lang = await detectLanguageWithAI(newCode)
+      setDetectedLang(lang)
+    }
   }
 
   async function handleAnalyse() {

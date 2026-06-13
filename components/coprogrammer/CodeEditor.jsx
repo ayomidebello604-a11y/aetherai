@@ -34,13 +34,23 @@ export default function CodeEditor({
 
       {/* Instruction Input */}
       <div className="px-4 sm:px-5 py-2 sm:py-3 border-b border-black bg-[#f5f5f5] flex-shrink-0">
-        <input
-          type="text"
-          placeholder="Enter instruction..."
-          value={instruction}
-          onChange={e => onInstructionChange(e.target.value)}
-          className="w-full text-[16px] sm:text-[16px] px-2 sm:px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
-        />
+        <label className="text-[8px] sm:text-[9px] font-bold tracking-widest uppercase opacity-60 block mb-1">
+          Instruction
+        </label>
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Enter instruction..."
+            value={instruction}
+            onChange={e => onInstructionChange(e.target.value)}
+            className="flex-1 text-[16px] sm:text-[16px] px-2 sm:px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black"
+          />
+          {instruction && (
+            <span className="text-[8px] sm:text-[9px] bg-black text-white px-2 py-1 rounded font-bold tracking-widest uppercase whitespace-nowrap">
+              ✓ Set
+            </span>
+          )}
+        </div>
       </div>
     
       {/* Editor Container - scrollable, grows to fill space */}

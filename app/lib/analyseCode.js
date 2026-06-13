@@ -4,6 +4,11 @@ function detectLanguage(code) {
   
   const trimmed = code.trim();
   
+  // C patterns (check early)
+  if (/(^|\n)\s*(#include|int main|printf|void|char|struct)\b/m.test(trimmed) && !/(std::|using namespace)/m.test(trimmed)) {
+    return 'c';
+  }
+  
   // C/C++ patterns (check early - very specific)
   if (/(#include|void|int main|this>>|printf|std::cout|using namespace|Serial.print|std::vector|template <)\b/.test(trimmed)) {
     return 'cpp';
@@ -19,6 +24,16 @@ function detectLanguage(code) {
     return 'rust';
   }
   
+  // Kotlin patterns
+  if (/(^|\n)\s*(fun |val |var |class |object |interface |data class|companion object)\b/m.test(trimmed) && /(->|\.\.)/m.test(trimmed)) {
+    return 'kotlin';
+  }
+  
+  // Swift patterns
+  if (/(^|\n)\s*(import|func |let |var |struct |class |enum )\b/m.test(trimmed) && /(\{[\s\S]*\}|-\>)/m.test(trimmed) && !/(public |interface )/m.test(trimmed)) {
+    return 'swift';
+  }
+  
   // Java patterns (check early - look for java-specific imports)
   if (/(^|\n)\s*(public |private |protected |class |interface |import java\.|@Override|@Test)\b/m.test(trimmed)) {
     return 'java';
@@ -29,9 +44,29 @@ function detectLanguage(code) {
     return 'csharp';
   }
   
+  // Ruby patterns
+  if (/(^|\n)\s*(def |class |require |attr_|puts |print |rescue |begin )\b/m.test(trimmed)) {
+    return 'ruby';
+  }
+  
   // PHP patterns (check early - <?php is definitive)
   if (/(^|\n)\s*(<\?php|<\?|function |class |namespace |\$\w+|->|echo |print )/m.test(trimmed) || /^\s*<\?php/.test(trimmed)) {
     return 'php';
+  }
+  
+  // SQL patterns
+  if (/(^|\n)\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|FROM|WHERE|JOIN)\b/im.test(trimmed)) {
+    return 'sql';
+  }
+  
+  // HTML patterns
+  if (/<(html|head|body|div|p|span|button)\b/i.test(trimmed) || /<!DOCTYPE/i.test(trimmed)) {
+    return 'html';
+  }
+  
+  // CSS patterns
+  if (/\.[a-zA-Z_-]+\s*\{|#[a-zA-Z_-]+\s*\{|@media|@keyframes/.test(trimmed)) {
+    return 'css';
   }
   
   // TypeScript patterns (check before JavaScript since it's more specific)
@@ -60,9 +95,16 @@ function buildPrompt(code, language, instruction) {
     'go': 'Go (uses func, package, goroutines)',
     'rust': 'Rust (uses fn, let mut, impl)',
     'java': 'Java (uses public class, interface, import java)',
+    'c': 'C (uses #include, int main, void, printf)',
     'cpp': 'C++ (uses #include, std::, void int main)',
     'csharp': 'C# (uses public class, using, namespace)',
     'php': 'PHP (uses <?php, $var, function)',
+    'ruby': 'Ruby (uses def, class, puts, require)',
+    'kotlin': 'Kotlin (uses fun, val, var, class, data class)',
+    'swift': 'Swift (uses func, let, var, struct, class)',
+    'sql': 'SQL (uses SELECT, INSERT, UPDATE, DELETE, JOIN)',
+    'html': 'HTML (uses <!DOCTYPE, <html>, <body>, etc.)',
+    'css': 'CSS (uses selectors, properties, @media, @keyframes)',
   };
 
   const langDisplay = languageExamples[language] || language;
@@ -163,6 +205,79 @@ export async function analyseCode(code, language = '', instruction = '') {
       throw new Error('Analysis request took too long. Try with simpler or shorter code.');
     }
     throw error;
+  }
+}
+
+export async function detectLanguageWithAI(code) {
+  if (!code || code.trim().length === 0) {
+    return 'typescript';
+  }
+
+  try {
+    const prompt = `Analyze this code snippet and identify the programming language it's written in.
+
+Code:
+${code}
+
+Respond with ONLY a JSON object in this format (no markdown, no extra text):
+{"language": "language_name"}
+
+Use one of these language identifiers: python, javascript, typescript, java, c, cpp, csharp, go, rust, php, ruby, kotlin, swift, sql, html, css, or other if you detect something else.
+If unsure, make your best guess based on syntax patterns.`;
+
+    const res = await fetch('/api/coprogrammer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: prompt,
+      }),
+    });
+
+    if (!res.ok) {
+      // Fallback to keyword detection if API fails
+      return detectLanguage(code);
+    }
+
+    const data = await res.json();
+    let raw = data.reply;
+
+    // Strip markdown fences if present
+    raw = raw
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .trim();
+
+    // Find the JSON object
+    const jsonStart = raw.indexOf('{');
+    const jsonEnd = raw.lastIndexOf('}');
+    
+    if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
+      return detectLanguage(code);
+    }
+
+    const jsonStr = raw.substring(jsonStart, jsonEnd + 1);
+
+    try {
+      const parsed = JSON.parse(jsonStr);
+      if (parsed.language && typeof parsed.language === 'string') {
+        // Normalize language name
+        const normalized = parsed.language.toLowerCase().trim();
+        const validLanguages = ['python', 'javascript', 'typescript', 'java', 'c', 'cpp', 'csharp', 'go', 'rust', 'php', 'ruby', 'kotlin', 'swift', 'sql', 'html', 'css'];
+        if (validLanguages.includes(normalized)) {
+          return normalized;
+        }
+        return normalized; // Return the AI's best guess even if not in our predefined list
+      }
+    } catch (parseError) {
+      return detectLanguage(code);
+    }
+
+    return detectLanguage(code);
+  } catch (error) {
+    // Fallback to keyword detection on any error
+    return detectLanguage(code);
   }
 }
 
