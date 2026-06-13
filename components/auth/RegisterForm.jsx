@@ -55,6 +55,22 @@ export default function RegisterForm({ onModeChange }) {
     }
 
     setLoading(true)
+    
+    // First, check if user already exists by attempting to sign in
+    // This is a workaround to detect existing emails since Supabase signup doesn't return errors for existing emails
+    const { data: existingUser } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: user.password,
+    })
+    
+    // If sign-in succeeded, the user already exists
+    if (existingUser?.user) {
+      setLoading(false)
+      setError('This email is already registered. Try logging in or use a different email.')
+      return
+    }
+    
+    // Now try to sign up with new email
     const { data, error } = await supabase.auth.signUp({
       email: user.email,
       password: user.password,
@@ -67,35 +83,45 @@ export default function RegisterForm({ onModeChange }) {
     })
     setLoading(false)
     
-    // Check if registration succeeded (Supabase returns data object even if email confirmation pending)
-    if (data && !error) {
-      // Success: user was created (even if email confirmation is required)
-      console.log('Registration successful, verification email sent')
-      setVerificationSent(true)
-      return
-    }
-    
-    // Check for specific errors
+    // Check for errors FIRST (Supabase can return data + error together)
     if (error) {
       console.error('Registration failed:', error.message)
+      console.error('Error status:', error.status)
+      console.error('Full error:', error)
       let userError = 'Registration failed. Please try again.'
       
       // Check various error patterns from Supabase
       const errorMsg = error.message?.toLowerCase() || ''
-      if (errorMsg.includes('already registered') || errorMsg.includes('already exist') || errorMsg.includes('user already')) {
+      const errorStatus = error.status
+      
+      // Check by status code first (most reliable)
+      if (errorStatus === 422) {
+        // 422 is Supabase's code for "email already registered"
         userError = 'This email is already registered. Try logging in or use a different email.'
-      } else if (errorMsg.includes('password') || errorMsg.includes('password too') || errorMsg.includes('atleast')) {
-        userError = 'Password must be at least 6 characters long and contain uppercase, lowercase, numbers, and special characters.'
-      } else if (errorMsg.includes('invalid') || errorMsg.includes('email')) {
-        userError = 'Please enter a valid email address.'
+      }
+      // Check by error message patterns
+      else if (errorMsg.includes('already registered') || errorMsg.includes('already exist') || errorMsg.includes('user already') || errorMsg.includes('duplicate')) {
+        userError = 'This email is already registered. Try logging in or use a different email.'
+      } else if (errorMsg.includes('rate limit') || errorMsg.includes('too many')) {
+        userError = 'Too many registration attempts. Please wait a few minutes and try again.'
+      } else if (errorMsg.includes('password too') || errorMsg.includes('atleast') || errorMsg.includes('at least')) {
+        userError = 'Password must be at least 6 characters long.'
       } else if (errorMsg.includes('weak')) {
         userError = 'Your password is too weak. Use a mix of uppercase, lowercase, numbers, and special characters.'
+      } else if (errorMsg.includes('invalid email')) {
+        userError = 'Please enter a valid email address.'
       }
       
       setError(userError)
-    } else {
-      // Fallback - shouldn't reach here
-      setError('Registration failed. Please try again.')
+      return
+    }
+    
+    // Check if registration succeeded (only if NO error)
+    if (data) {
+      // Success: user was created (even if email confirmation is required)
+      console.log('Registration successful, verification email sent')
+      setVerificationSent(true)
+      return
     }
   }
  

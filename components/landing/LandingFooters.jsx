@@ -41,7 +41,7 @@ export default function LandingFooter() {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
           <p className="text-[10px] sm:text-[11px] text-white/25 tracking-widest uppercase order-2 sm:order-1">
-            © 2025 Aether AI. All rights reserved.
+            © 2026 Aether AI. All rights reserved.
           </p>
 
           <div className="flex items-center gap-2 sm:gap-3 order-1 sm:order-2 flex-wrap">
