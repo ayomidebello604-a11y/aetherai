@@ -106,38 +106,47 @@ const renderInlineMarkdown = (text) => {
   const parts = [];
   let lastIndex = 0;
   
-  // Pattern for bold (**text**)
-  const boldRegex = /\*\*([^\*]+)\*\*/g;
+  // Process bold and math together, prioritizing bold first
+  const combinedRegex = /(\*\*([^\*]+)\*\*)/g;
+  const mathRegex = /(\$\$[\s\S]*?\$\$|\$[^\$]+\$|\\boxed\{[^}]+\})/g;
+  
   let match;
+  const segments = [];
   
-  const textParts = [];
-  const boldMatches = [];
-  while ((match = boldRegex.exec(text)) !== null) {
-    boldMatches.push({ start: match.index, end: match.index + match[0].length, content: match[1] });
-  }
-  
-  lastIndex = 0;
-  boldMatches.forEach(bold => {
-    if (bold.start > lastIndex) {
-      textParts.push({ type: 'text', content: text.slice(lastIndex, bold.start) });
+  // First, split by bold markers
+  while ((match = combinedRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ type: 'text', content: text.slice(lastIndex, match.index) });
     }
-    textParts.push({ type: 'bold', content: bold.content });
-    lastIndex = bold.end;
-  });
+    segments.push({ type: 'bold', content: match[2] }); // match[2] is the content between **
+    lastIndex = match.index + match[0].length;
+  }
   
   if (lastIndex < text.length) {
-    textParts.push({ type: 'text', content: text.slice(lastIndex) });
+    segments.push({ type: 'text', content: text.slice(lastIndex) });
   }
   
-  if (textParts.length === 0) {
-    textParts.push({ type: 'text', content: text });
+  if (segments.length === 0) {
+    segments.push({ type: 'text', content: text });
   }
   
-  return textParts.map((p, i) => {
-    if (p.type === 'bold') {
-      return <strong key={i} className="font-semibold">{p.content}</strong>;
+  // Now process each segment for math
+  return segments.map((seg, i) => {
+    if (seg.type === 'bold') {
+      // Render math inside bold text
+      const mathParts = renderTextWithMath(seg.content);
+      return (
+        <strong key={i} className="font-semibold">
+          {mathParts.map((mp, j) => 
+            mp.type === 'math' ? 
+              <MathRenderer key={j} math={mp.content} /> : 
+              <span key={j}>{mp.content}</span>
+          )}
+        </strong>
+      );
     } else {
-      const mathParts = renderTextWithMath(p.content);
+      // Render math in regular text
+      const mathParts = renderTextWithMath(seg.content);
       return (
         <React.Fragment key={i}>
           {mathParts.map((mp, j) => 
@@ -150,6 +159,7 @@ const renderInlineMarkdown = (text) => {
     }
   });
 };
+
 
 // Helper component to render markdown-like content
 const MessageContent = ({ text, isError }) => {
