@@ -117,7 +117,7 @@ function createModel(systemPrompt) {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
   return genAI.getGenerativeModel({
-    model: "gemini-3.5-flash",
+    model: "gemini-2.5-flash",
     systemInstruction: systemPrompt,
     requestOptions: {
       timeout: 30000,
@@ -175,7 +175,7 @@ export async function chat(userMessage, conversationHistory = [], queryType = nu
       success: true,
       reply,
       timestamp: new Date().toISOString(),
-      model: "gemini-3.5-flash",
+      model: "gemini-2.5-flash",
       queryType: detectedType,
     };
   } catch (error) {
