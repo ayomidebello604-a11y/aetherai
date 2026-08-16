@@ -1,7 +1,17 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
+// 1. Define your protected routes
+const protectedRoutes = ['/researcher', '/coprogrammer', '/Image-generation']
+
 export async function middleware(request) {
+  const { pathname } = request.nextUrl
+
+  // 2. Check if the current request path matches any protected route or its sub-paths
+  const isProtectedRoute = protectedRoutes.some((route) => 
+    pathname === route || pathname.startsWith(`${route}/`)
+  )
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -17,22 +27,19 @@ export async function middleware(request) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
           response = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) => {
-            // Determine if connection is secure (HTTPS) or not
             const isSecure = request.headers.get('x-forwarded-proto') === 'https' || 
                             request.nextUrl.protocol === 'https:'
             
-            // Set appropriate cookie options based on connection type
             response.cookies.set(name, value, {
               ...options,
               ...(isSecure 
                 ? { sameSite: 'none', secure: true }  // HTTPS: strict cross-site cookies
-                : { sameSite: 'lax' }                   // HTTP (dev): basic protection
+                : { sameSite: 'lax' }                 // HTTP (dev): basic protection
               ),
             })
           })
@@ -42,22 +49,34 @@ export async function middleware(request) {
   )
 
   try {
+    // 3. Get the current user 
     const {
-      data: { session },
-    } = await supabase.auth.getSession() 
+      data: { user },
+    } = await supabase.auth.getUser() 
 
-    if (!session) {
-      return NextResponse.redirect(new URL('/auth', request.url))
+    // 4. ONLY redirect to /auth if the route is protected AND there is no session
+    if (isProtectedRoute && !user) {
+      const authUrl = new URL('/auth', request.url)
+      // Optional: Pass the original path as a query parameter to redirect back after login
+      authUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(authUrl)
     }
   } catch (error) {
     console.error('Middleware auth error:', error?.message)
-    // Still redirect to auth on error - session check failed, user not authenticated
-    return NextResponse.redirect(new URL('/auth', request.url))
+    // If there's an error and they are trying to access a protected route, block them
+    if (isProtectedRoute) {
+      return NextResponse.redirect(new URL('/auth', request.url))
+    }
   }
 
   return response
 }
 
+// 5. Update the matcher to run on all protected routes and their sub-paths
 export const config = {
-  matcher: ['/researcher/:path*'],
+  matcher: [
+    '/researcher/:path*',
+    '/coprogrammer/:path*',
+    '/Image-generation/:path*',
+  ],
 }

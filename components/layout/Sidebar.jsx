@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 const navItems = [
   { id: 'researcher',    label: 'Researcher',    icon: <Search size={15}/>,  href: '/researcher' },
   { id: 'coprogrammer', label: 'Co-Programmer', icon: <Code2 size={15}/>,   href: '/coprogrammer' },
+  {id: 'image-generation', label: 'Image Generation', icon: <Code2 size={15}/>, href: '/Image-generation' },
 ]
 
 export default function Sidebar({ activeItem, onClose }) {
