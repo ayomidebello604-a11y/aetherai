@@ -55,7 +55,7 @@ export async function POST(request) {
     // 3. Process the user's prompt
     // ----------------------------------------
 
-    const processedPrompt = processImagePrompt(prompt);
+    const processedPrompt = await processImagePrompt(prompt);
 
     // ----------------------------------------
     // 4. Create Cloudflare request

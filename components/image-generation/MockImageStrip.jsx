@@ -12,7 +12,7 @@ export default function MockImageStrip() {
       <p className="text-[9px] font-bold tracking-[.14em] uppercase text-white/20 mb-3">
         Example generations
       </p>
-      <div className="flex items-end gap-3 flex-wrap justify-center">
+      <div className="flex items-end gap-3 flex-nowrap justify-start overflow-x-auto pb-1 md:flex-wrap md:justify-center md:overflow-visible md:pb-0">
         {EXAMPLES.map((ex, i) => (
           <div key={i} className="relative overflow-hidden border border-white/[.09] flex-shrink-0 cursor-pointer hover:border-white/30 hover:-translate-y-0.5 transition-all duration-200 rounded-lg" style={{ width: ex.w, height: ex.h }}>
             <img src={ex.src} alt={ex.label} className="w-full h-full object-cover opacity-55" />

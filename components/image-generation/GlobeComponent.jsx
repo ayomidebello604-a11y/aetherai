@@ -6,7 +6,7 @@ export default function GlobeComponent({ greeting = "Good Evening, AETHER." }) {
     <div className="flex flex-col items-center gap-0 mb-auto pt-8 flex-shrink-0">
 
       {/* Orb */}
-      <div className="relative w-[280px] h-[280px] flex items-center justify-center mb-12">
+      <div className="relative w-[200px] h-[200px] md:w-[280px] md:h-[280px] flex items-center justify-center mb-8 md:mb-12">
 
         {/* Outer glow rings */}
         <span className="absolute inset-[-20px] border border-white/[.06]"
@@ -26,7 +26,7 @@ export default function GlobeComponent({ greeting = "Good Evening, AETHER." }) {
 
         {/* The orb itself */}
         <div
-          className="w-64 h-64 relative z-10 overflow-hidden"
+          className="w-48 h-48 md:w-64 md:h-64 relative z-10 overflow-hidden"
           style={{ borderRadius: "50%" }}>
 
           {/* Spinning conic gradient */}
